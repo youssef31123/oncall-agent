@@ -81,18 +81,25 @@ CONFIDENCE: <low/medium/high>
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={GEMINI_API_KEY}"
     body = {"contents": [{"parts": [{"text": prompt}]}]}
 
-    last_resp = None
+    last_error = None
     for attempt in range(3):
-        resp = requests.post(url, json=body, timeout=30)
-        if resp.status_code == 200:
-            data = resp.json()
-            return data["candidates"][0]["content"]["parts"][0]["text"]
-        last_resp = resp
-        if resp.status_code in (503, 429):
+        try:
+            resp = requests.post(url, json=body, timeout=45)
+            if resp.status_code == 200:
+                data = resp.json()
+                return data["candidates"][0]["content"]["parts"][0]["text"]
+            if resp.status_code in (503, 429):
+                time.sleep(3 * (attempt + 1))
+                last_error = resp
+                continue
+            resp.raise_for_status()
+        except requests.exceptions.Timeout as e:
+            last_error = e
             time.sleep(3 * (attempt + 1))
             continue
-        resp.raise_for_status()
-    last_resp.raise_for_status()
+    if isinstance(last_error, requests.Response):
+        last_error.raise_for_status()
+    raise last_error
 
 
 def open_github_issue(diagnosis, logs):
