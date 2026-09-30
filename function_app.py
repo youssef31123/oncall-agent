@@ -77,7 +77,7 @@ ROOT CAUSE: <one or two sentences>
 SUGGESTED FIX: <the code fix as a unified diff or clear before/after snippet>
 CONFIDENCE: <low/medium/high>
 """
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key={GEMINI_API_KEY}"
     body = {"contents": [{"parts": [{"text": prompt}]}]}
     resp = requests.post(url, json=body)
     resp.raise_for_status()
