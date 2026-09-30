@@ -18,6 +18,10 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 
 def get_credential():
+    # In Azure, use the Function App's managed identity.
+    # Locally, fall back to your az login session.
+    if os.environ.get("WEBSITE_INSTANCE_ID"):
+        return DefaultAzureCredential()
     try:
         return AzureCliCredential()
     except Exception:
